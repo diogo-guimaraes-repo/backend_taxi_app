@@ -2,12 +2,12 @@ from django.contrib.auth import forms as admin_forms
 from django.contrib.auth import get_user_model
 from django.db.models import fields
 from django.utils.translation import gettext_lazy as _
-from .models import Client, Driver
+from .models import Client, Driver, User
 from django.db import transaction
 from django import forms as d_forms
 
 
-User = get_user_model()
+#User = get_user_model()
 
 '''
 class UserChangeForm(admin_forms.UserChangeForm):
@@ -48,7 +48,7 @@ class ClientCreationForm(admin_forms.UserCreationForm):
     def save(self):
         # Set the user's type from the form reponse
         user = super().save(commit=False)
-        user.type = ("CLIENT", "Client")
+        user.type = User.Types.CLIENT
         user.save()
         client = Client.objects.create(client=user, phone_number=self.cleaned_data.get('phone_number'))
         client.save()
@@ -79,7 +79,7 @@ class DriverCreationForm(admin_forms.UserCreationForm):
     def save(self):
         # Set the user's type from the form reponse
         user = super().save(commit=False)
-        user.type = ("DRIVER", "Driver")
+        user.type = User.Types.DRIVER
         user.save()
         driver = Driver.objects.create(driver=user, phone_number=self.cleaned_data.get('phone_number'))
         driver.save()
