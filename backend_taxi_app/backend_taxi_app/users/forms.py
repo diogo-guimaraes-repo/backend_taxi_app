@@ -50,7 +50,7 @@ class ClientCreationForm(admin_forms.UserCreationForm):
         user = super().save(commit=False)
         user.type = User.Types.CLIENT
         user.save()
-        client = Client.objects.create(client=user, phone_number=self.cleaned_data.get('phone_number'))
+        client = Client.objects.create(client=user)
         client.save()
         return user
 
@@ -81,6 +81,6 @@ class DriverCreationForm(admin_forms.UserCreationForm):
         user = super().save(commit=False)
         user.type = User.Types.DRIVER
         user.save()
-        driver = Driver.objects.create(driver=user, phone_number=self.cleaned_data.get('phone_number'))
+        driver = Driver.objects.create(driver=user)
         driver.save()
         return user

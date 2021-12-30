@@ -47,12 +47,15 @@ class User(AbstractUser):
     email = models.EmailField(unique=True,
                               blank=False, max_length=254, verbose_name="email address")
     birth_date = models.DateField(_("Birth Date"), null=True, blank=True)
-    user_type = models.CharField(
-        max_length=50, choices=Types.choices, default=base_type)
     picture = models.ImageField(_("Profile Picture"), upload_to='uploads/% Y/% m/% d/', blank=True)
     type = models.CharField(
         _("Type"), max_length=50, choices=Types.choices, default=base_type
     )
+    phone_regex = RegexValidator(
+        regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
+    phone_number = models.CharField(
+        validators=[phone_regex], max_length=17, blank=False, unique=True, default="")
+
     username = None
 
     USERNAME_FIELD = "email"
@@ -75,10 +78,6 @@ class Client(models.Model):
         User, on_delete=models.CASCADE, blank=True, null=True)
     credit = models.FloatField(default=0.00)
     base_type = User.Types.CLIENT
-    phone_regex = RegexValidator(
-        regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-    phone_number = models.CharField(
-        validators=[phone_regex], max_length=17, blank=False, unique=True, default="")
 
     def __str__(self):
         return self.client.email
@@ -89,10 +88,6 @@ class Driver(models.Model):
         User, on_delete=models.CASCADE, blank=True, null=True)
     rating = models.FloatField(default=0.00)
     base_type = User.Types.DRIVER
-    phone_regex = RegexValidator(
-        regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-    phone_number = models.CharField(
-        validators=[phone_regex], max_length=17, blank=False, unique=True, default="")
 
     def __str__(self):
         return self.driver.email
@@ -102,10 +97,6 @@ class Admin(models.Model):
     admin = models.OneToOneField(
         User, on_delete=models.CASCADE, blank=True, null=True)
     base_type = User.Types.ADMIN
-    phone_regex = RegexValidator(
-        regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")
-    phone_number = models.CharField(
-        validators=[phone_regex], max_length=17, blank=False, unique=True, default="")
 
     def __str__(self):
         return self.admin.email
