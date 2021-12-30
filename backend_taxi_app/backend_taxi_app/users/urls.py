@@ -13,6 +13,6 @@ urlpatterns = [
     path("~redirect/", view=user_redirect_view, name="redirect"),
     path("~update/", view=user_update_view, name="update"),
     path("<str:email>/", view=user_detail_view, name="detail"),
-    path("client/signup/", view=client_signup_view, name="detail"),
-    path("driver/signup/", view=driver_signup_view, name="detail"),
+    path("client/signup/", view=client_signup_view, name="client-signup"),
+    path("driver/signup/", view=driver_signup_view, name="driver-signup"),
 ]

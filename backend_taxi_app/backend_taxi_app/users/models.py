@@ -60,9 +60,6 @@ class User(AbstractUser):
 
     objects = CustomUserManager()
 
-    def __str__(self):
-        return self.email
-
     def get_absolute_url(self):
         """Get url for user's detail view.
 

@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
 
 from .serializers import UserSerializer
@@ -10,7 +11,7 @@ from .serializers import UserSerializer
 User = get_user_model()
 
 
-class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
+class UserViewSet(RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
     lookup_field = "email"
@@ -22,4 +23,12 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
     @action(detail=False)
     def me(self, request):
         serializer = UserSerializer(request.user, context={"request": request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    def get_object(self):
+        return self.request.user
+
+    def list(self, request):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
