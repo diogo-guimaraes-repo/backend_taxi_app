@@ -1,16 +1,34 @@
 from django.conf import settings
-from rest_framework.routers import DefaultRouter, SimpleRouter
-
+from rest_framework import routers
 from backend_taxi_app.users.api.views import UserViewSet, ClientViewSet, CurrentUserViewSet
 
+
+class CustomRouter(routers.SimpleRouter):
+    routes = [
+        routers.Route(
+            url=r'^{prefix}{trailing_slash}$',
+            mapping={
+                'get': 'list',
+                'patch': 'partial_update',
+            },
+            name='{basename}',
+            detail=False,
+            initkwargs={'suffix': ''}
+        ),
+    ]
+
+
 if settings.DEBUG:
-    router = DefaultRouter()
+    router = routers.DefaultRouter()
 else:
-    router = SimpleRouter()
+    router = routers.SimpleRouter()
+
+me_router = CustomRouter()
 
 router.register("users", UserViewSet)
 router.register("clients", ClientViewSet)
-router.register("me", CurrentUserViewSet)
+me_router.register("me", CurrentUserViewSet)
+
 
 app_name = "api"
-urlpatterns = router.urls
+urlpatterns = router.urls + me_router.urls

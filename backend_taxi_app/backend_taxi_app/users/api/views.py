@@ -62,7 +62,7 @@ class CurrentUserViewSet(GenericViewSet):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        return Response(status=status.HTTP_202_ACCEPTED, data=serializer.data)
 
     def list(self, request):
         serializer = self.get_serializer(self.get_object())

@@ -34,7 +34,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta(UserSerializer.Meta):
         model = User
-        fields = ["email", "first_name", "last_name", "phone_number", "birth_date",
+        fields = ["id", "email", "first_name", "last_name", "phone_number", "birth_date",
                   "picture", "type", "driver_details", "client_details"]
 
     def get_client_details(self, obj):
