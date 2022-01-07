@@ -20,12 +20,14 @@ class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = ["credit"]
+        read_only_fields = ["credit"]
 
 
 class DriverSerializer(serializers.ModelSerializer):
     class Meta:
         model = Driver
         fields = ["rating"]
+        read_only_fields = ["rating"]
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -38,11 +40,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
                   "picture", "type", "driver_details", "client_details"]
 
     def get_client_details(self, obj):
-        if obj.type == User.Types.CLIENT:
+        if obj.type == User.Types.CLIENT and hasattr(obj, 'client'):
             return ClientSerializer(obj.client).data
         return None
 
     def get_driver_details(self, obj):
-        if obj.type == User.Types.DRIVER:
+        if obj.type == User.Types.DRIVER and hasattr(obj, 'driver'):
             return DriverSerializer(obj.driver).data
         return None

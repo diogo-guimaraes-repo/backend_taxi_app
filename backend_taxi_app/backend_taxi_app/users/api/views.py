@@ -10,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
 
-from ..models import Client
-from .serializers import UserSerializer, ClientSerializer, CustomUserSerializer
+from ..models import User
+from .serializers import UserSerializer, CustomUserSerializer
 
 User = get_user_model()
 
@@ -26,28 +26,15 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
         assert isinstance(self.request.user.id, int)
         return self.queryset.filter(id=self.request.user.id)
 
-    @action(detail=False)
-    def me(self, request):
-        serializer = UserSerializer(request.user, context={"request": request})
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+class DriversViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
+    serializer_class = CustomUserSerializer
+    queryset = User.objects.filter(is_active=True, type=User.Types.DRIVER)
 
 
-class ClientViewSet(UserViewSet):
-    serializer_class = ClientSerializer
-    queryset = Client.objects.all()
-    lookup_field = "client__email"
-    lookup_value_regex = '[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}'
-
-    def get_queryset(self, *args, **kwargs):
-        assert isinstance(self.request.user.id, int)
-        return self.queryset.filter(client=self.request.user)
-
-    @action(detail=False)
-    def me(self, request):
-        current_client = self.queryset.filter(client=self.request.user)
-        client = get_object_or_404(current_client)
-        serializer = ClientSerializer(client, context={"request": request})
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+class ClientsViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
+    serializer_class = CustomUserSerializer
+    queryset = User.objects.filter(is_active=True, type=User.Types.CLIENT)
 
 
 class CurrentUserViewSet(GenericViewSet):
