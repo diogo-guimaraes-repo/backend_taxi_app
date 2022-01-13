@@ -272,3 +272,6 @@ tags
 backend_taxi_app/media/
 
 .pytest_cache/
+.env
+.envs/*
+!.envs/.local/
