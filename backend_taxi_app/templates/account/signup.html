@@ -6,13 +6,7 @@
 {% block head_title %}{% translate "Signup" %}{% endblock %}
 
 {% block inner %}
-<h1>{% translate "Sign Up" %}</h1>
-
-<p>
-  {% blocktranslate %}
-  Already have an account? Then please <a href="{{ login_url }}">sign in</a>.
-  {% endblocktranslate%}
-</p>
+<h1>{% translate "Create Your Account" %}</h1>
 
 <form class="signup" id="signup_form" method="post" novalidate>
   {% csrf_token %}
@@ -22,5 +16,11 @@
   {% endif %}
   <button class="btn btn-primary" type="submit">{% translate "Sign Up" %} &raquo;</button>
 </form>
+
+<p class="details">{% blocktranslate %}I Agree with ECOTAXIRICARDO<a href="{{  }}">Terms of Service</a> and <a href="{{  }}">Privacy Policy</a>{% endblocktranslate%}</p>
+
+<p class="helper">
+  {% blocktranslate %}Already have an account? Then please{% endblocktranslate%} <a href="{% url 'account_login' %}">sign in</a>.
+</p>
 
 {% endblock %}
