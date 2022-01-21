@@ -82,6 +82,19 @@ class Client(models.Model):
     def __str__(self):
         return self.client.email
 
+    def update_credit(self, credit_amount):
+        self.credit += credit_amount
+        self.save()
+        return self.credit
+
+    def use_credit(self, amount):
+        ret = "INSUFFICIENT_FUNDS"
+        if self.credit >= amount:
+            ret = "SUCCESS"
+            self.credit -= amount
+            self.save()
+        return ret
+
 
 class Driver(models.Model):
     driver = models.OneToOneField(
