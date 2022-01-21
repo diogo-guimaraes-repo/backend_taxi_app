@@ -6,8 +6,17 @@ from django.urls import reverse
 
 
 class Payment(models.Model):
-    value = models.FloatField(default=50.0, blank=False)
+
+    class PaymentMethods(models.TextChoices):
+        CASH = "CASH", "Cash"
+        CARD = "CARD", "Card"
+        TWINT = "TWINT", "Twint"
+        CREDIT = "CREDIT", "Credit"
+
+    value = models.FloatField(default=0.0, blank=False)
     payment_time = models.DateTimeField(editable=False)
+    payment_method = models.CharField(
+        max_length=50, choices=PaymentMethods.choices, default=PaymentMethods.CASH)
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -23,6 +32,7 @@ class Trip(models.Model):
         PICKUP = "PICKUP", "Pickup"
         IN_TRAVEL = "IN_TRAVEL", "In Travel"
         COMPLETE = "COMPLETE", "Complete"
+        CANCELLED = "CANCELLED", "Cancelled"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=False, related_name="trips_as_client")
@@ -45,3 +55,15 @@ class Trip(models.Model):
 
     def get_absolute_url(self):
         return reverse('trip:trip_detail', kwargs={'trip_id': self.id})
+
+    def pay_trip(self, payment_data):
+        self.price = payment_data["value"]
+        if payment_data["payment_method"] == Payment.PaymentMethods.CREDIT:
+            user = User.objects.get(id=self.client.id)
+            if user.client.use_credit(self.price) == "INSUFFICIENT_FUNDS":
+                return "INSUFFICIENT_FUNDS"
+
+        self.trip_status = Trip.Status.COMPLETE
+        self.payment = Payment.objects.create(**payment_data)
+        self.save()
+        return "SUCCESS"

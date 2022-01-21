@@ -1,23 +1,18 @@
-from functools import partial
+from rest_framework import filters
 from django.contrib.auth import get_user_model
-from django.db.models import query
 from rest_framework import status
-from rest_framework import serializers
-from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.response import Response
-from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
 
 from ..models import User
-from .serializers import UserSerializer, CustomUserSerializer
+from .serializers import CustomUserSerializer, ClientUpdateSerializer
 
 User = get_user_model()
 
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
-    serializer_class = UserSerializer
+    serializer_class = CustomUserSerializer
     queryset = User.objects.all()
     lookup_field = "email"
     lookup_value_regex = '[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}'
@@ -30,11 +25,17 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
 class DriversViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
     serializer_class = CustomUserSerializer
     queryset = User.objects.filter(is_active=True, type=User.Types.DRIVER)
+    lookup_field = "email"
+    lookup_value_regex = '[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}'
 
 
-class ClientsViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
-    serializer_class = CustomUserSerializer
+class ClientsViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin, UpdateModelMixin):
+    serializer_class = ClientUpdateSerializer
+    search_fields = ['first_name', 'last_name']
+    filter_backends = (filters.SearchFilter,)
     queryset = User.objects.filter(is_active=True, type=User.Types.CLIENT)
+    lookup_field = "email"
+    lookup_value_regex = '[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}'
 
 
 class CurrentUserViewSet(GenericViewSet):
