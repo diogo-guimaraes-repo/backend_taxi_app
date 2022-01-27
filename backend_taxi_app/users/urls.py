@@ -6,6 +6,7 @@ from backend_taxi_app.users.views import (
     user_update_view,
     client_signup_view,
     driver_signup_view,
+    admin_signup_view
 )
 
 app_name = "users"
@@ -15,4 +16,5 @@ urlpatterns = [
     path("<str:email>/", view=user_detail_view, name="detail"),
     path("client/signup/", view=client_signup_view, name="client-signup"),
     path("driver/signup/", view=driver_signup_view, name="driver-signup"),
+    path("admin/signup/", view=admin_signup_view, name="admin-signup"),
 ]
