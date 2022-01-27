@@ -1,5 +1,6 @@
+from urllib import response
 from django.contrib.auth import get_user_model
-from .models import Client, Driver
+from .models import Client, Driver, Admin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse
@@ -7,7 +8,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, RedirectView, UpdateView, CreateView
 
-from .forms import ClientCreationForm, DriverCreationForm
+from .forms import ClientCreationForm, DriverCreationForm, AdminCreationForm
 
 User = get_user_model()
 
@@ -68,3 +69,12 @@ class DriverSignUpView(CreateView):
 
 
 driver_signup_view = DriverSignUpView.as_view()
+
+
+class AdminSignUpView(CreateView):
+    model = Admin
+    form_class = AdminCreationForm
+    template_name = '../templates/account/signup.html'
+
+
+admin_signup_view = AdminSignUpView.as_view()
