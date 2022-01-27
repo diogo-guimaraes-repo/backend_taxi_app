@@ -9,7 +9,7 @@ from rest_framework import permissions, viewsets
 
 
 class TripsViewSet(viewsets.ReadOnlyModelViewSet):
-    search_fields = ['trip_status']
+    search_fields = ['trip_status', 'driver__email']
     filter_backends = (filters.SearchFilter,)
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
@@ -26,7 +26,7 @@ class MyTripsViewSet(viewsets.ModelViewSet):
         if user.type == User.Types.CLIENT:
             return Trip.objects.filter(client=user).order_by('-request_time')[:4]
         if user.type == User.Types.DRIVER:
-            return Trip.objects.filter(Q(trip_status=Trip.Status.SCHEDULED) | Q(driver=user))
+            return Trip.objects.filter(~Q(trip_status=Trip.Status.COMPLETE) & Q(driver=user))
         return Trip.objects.none()
 
     def perform_create(self, serializer):
