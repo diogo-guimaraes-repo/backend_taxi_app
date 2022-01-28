@@ -17,6 +17,17 @@ class InsufficientFundsExcpetion(PermissionDenied):
             self.status_code = status_code
 
 
+class BadTripStatusExcpetion(PermissionDenied):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    default_detail = "Not allowed"
+    default_code = 'invalid'
+
+    def __init__(self, detail, status_code=None):
+        self.detail = detail
+        if status_code is not None:
+            self.status_code = status_code
+
+
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
@@ -61,4 +72,17 @@ class TripPaymentSerializer(serializers.ModelSerializer):
         if instance.pay_trip(payment_data) == "INSUFFICIENT_FUNDS":
             raise InsufficientFundsExcpetion(detail={"message": "Not enough credit."},
                                              status_code=status.HTTP_406_NOT_ACCEPTABLE)
+        return instance
+
+
+class TripCancelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trip
+        fields = ('trip_status',)
+
+    def update(self, instance, validated_data):
+        status = validated_data.pop('trip_status')
+        if status != Trip.Status.CANCELLED:
+            raise BadTripStatusExcpetion(detail={"message": "Not allowed."})
+        instance.cancel_trip()
         return instance

@@ -2,8 +2,10 @@ from lib2to3.pgen2 import driver
 from rest_framework import filters
 from django.db.models import Q
 from rest_framework.decorators import permission_classes
-from .serializers import TripSerializer, TripDetailSerializer, TripDetailUpdateSerializer, TripPaymentSerializer
+from .serializers import TripSerializer, TripDetailSerializer, TripDetailUpdateSerializer, TripPaymentSerializer, TripCancelSerializer
 from ..models import Trip, User
+from ..permissions import OwnDriverAndAdminAccessOnly, OwnDriverAccessOnly, OwnClientAccessOnly, ReadOnlyPermission
+from ...users.permissions import ClientNotAllowed
 from django.utils import timezone
 from rest_framework import permissions, viewsets
 
@@ -13,13 +15,13 @@ class TripsViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (filters.SearchFilter,)
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (ClientNotAllowed, )
 
 
 class MyTripsViewSet(viewsets.ModelViewSet):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (ReadOnlyPermission,)
 
     def get_queryset(self):
         user = self.request.user
@@ -36,7 +38,7 @@ class MyTripsViewSet(viewsets.ModelViewSet):
 class TripView(viewsets.ModelViewSet):
     lookup_field = 'id'
     lookup_url_kwarg = 'trip_id'
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (OwnDriverAndAdminAccessOnly,)
     serializer_class = TripDetailSerializer
 
     def get_serializer_class(self):
@@ -52,5 +54,13 @@ class PayView(viewsets.ModelViewSet):
     queryset = Trip.objects.all()
     lookup_field = 'id'
     lookup_url_kwarg = 'trip_id'
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (OwnDriverAccessOnly,)
     serializer_class = TripPaymentSerializer
+
+
+class TripCancelView(viewsets.ModelViewSet):
+    queryset = Trip.objects.all()
+    lookup_field = 'id'
+    lookup_url_kwarg = 'trip_id'
+    permission_classes = (OwnClientAccessOnly,)
+    serializer_class = TripCancelSerializer

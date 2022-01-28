@@ -67,3 +67,7 @@ class Trip(models.Model):
         self.payment = Payment.objects.create(**payment_data)
         self.save()
         return "SUCCESS"
+
+    def cancel_trip(self):
+        self.trip_status = Trip.Status.CANCELLED
+        self.save()

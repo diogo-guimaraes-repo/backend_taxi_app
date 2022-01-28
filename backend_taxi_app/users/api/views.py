@@ -6,12 +6,14 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from ..models import User
+from ..permissions import AdminAccessOnly, ClientNotAllowed
 from .serializers import CustomUserSerializer, ClientUpdateSerializer
 
 User = get_user_model()
 
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
+    permission_classes = [AdminAccessOnly]
     serializer_class = CustomUserSerializer
     queryset = User.objects.all()
     lookup_field = "email"
@@ -23,6 +25,7 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
 
 
 class DriversViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
+    permission_classes = [AdminAccessOnly]
     serializer_class = CustomUserSerializer
     queryset = User.objects.filter(is_active=True, type=User.Types.DRIVER)
     lookup_field = "email"
@@ -30,6 +33,7 @@ class DriversViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
 
 
 class ClientsViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin, UpdateModelMixin):
+    permission_classes = [ClientNotAllowed]
     serializer_class = ClientUpdateSerializer
     search_fields = ['first_name', 'last_name']
     filter_backends = (filters.SearchFilter,)
