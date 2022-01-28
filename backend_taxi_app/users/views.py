@@ -1,7 +1,7 @@
 from urllib import response
 from django.contrib.auth import get_user_model
 from .models import Client, Driver, Admin
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse
 from django.shortcuts import redirect
@@ -62,19 +62,25 @@ class ClientSignUpView(CreateView):
 client_signup_view = ClientSignUpView.as_view()
 
 
-class DriverSignUpView(CreateView):
+class DriverSignUpView(UserPassesTestMixin, CreateView):
     model = Driver
     form_class = DriverCreationForm
     template_name = '../templates/account/signup.html'
+
+    def test_func(self):
+        return self.request.user.type == User.Types.ADMIN
 
 
 driver_signup_view = DriverSignUpView.as_view()
 
 
-class AdminSignUpView(CreateView):
+class AdminSignUpView(UserPassesTestMixin, CreateView):
     model = Admin
     form_class = AdminCreationForm
     template_name = '../templates/account/signup.html'
+
+    def test_func(self):
+        return self.request.user.type == User.Types.ADMIN
 
 
 admin_signup_view = AdminSignUpView.as_view()
