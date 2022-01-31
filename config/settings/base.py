@@ -290,3 +290,6 @@ REST_FRAMEWORK = {
 #CORS_URLS_REGEX = r"^/api/.*$"
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+
+def ACCOUNT_USER_DISPLAY(user): return u'%s %s' % (user.first_name, user.last_name)
