@@ -6,30 +6,6 @@ from ..models import Client, User, Driver
 #User = get_user_model()
 
 
-class WritableSerializerMethodField(serializers.SerializerMethodField):
-
-    def __init__(self, method_name=None, **kwargs):
-        self.method_name = method_name
-        self.setter_method_name = kwargs.pop('setter_method_name', None)
-        self.deserializer_field = kwargs.pop('deserializer_field')
-
-        kwargs['source'] = '*'
-        super(serializers.SerializerMethodField, self).__init__(**kwargs)
-
-    def bind(self, field_name, parent):
-        retval = super().bind(field_name, parent)
-        if not self.setter_method_name:
-            self.setter_method_name = f'set_{field_name}'
-
-        return retval
-
-    def to_internal_value(self, data):
-        value = self.deserializer_field.to_internal_value(data)
-        method = getattr(self.parent, self.setter_method_name)
-        method(value)
-        return {}
-
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -60,7 +36,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta(UserSerializer.Meta):
         model = User
         fields = ["id", "email", "first_name", "last_name", "phone_number", "birth_date",
-                  "picture", "type", "driver_details", "client_details"]
+                  "picture", "type", "address", "driver_details", "client_details"]
 
     def get_client_details(self, obj):
         if obj.type == User.Types.CLIENT and hasattr(obj, 'client'):
@@ -79,7 +55,7 @@ class ClientUpdateSerializer(serializers.ModelSerializer):
     class Meta(UserSerializer.Meta):
         model = User
         fields = ["id", "email", "first_name", "last_name", "phone_number", "birth_date",
-                  "picture", "type", "client"]
+                  "picture", "type", "address", "client"]
 
     def update(self, instance, validated_data):
         client_details = validated_data.pop("client")
