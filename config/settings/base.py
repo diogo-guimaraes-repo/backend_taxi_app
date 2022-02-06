@@ -192,9 +192,6 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "backend_taxi_app.users.context_processors.allauth_settings",
             ],
-            "libraries": {
-                "password_reset_template_load": "backend_taxi_app.templatetags.password_reset_template_load"
-            }
         },
     }
 ]

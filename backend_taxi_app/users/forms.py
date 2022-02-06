@@ -25,6 +25,7 @@ class UserCreationForm(admin_forms.UserCreationForm):
 from allauth.account.adapter import get_adapter
 from allauth.account.forms import ResetPasswordForm
 from allauth.account.utils import user_pk_to_url_str
+from django.contrib.sites.shortcuts import get_current_site
 
 
 class CustomResetPasswordForm(ResetPasswordForm):
@@ -32,11 +33,13 @@ class CustomResetPasswordForm(ResetPasswordForm):
         email = self.cleaned_data['email']
         token_generator = kwargs.get('token_generator')
         template = kwargs.get("email_template_name")
+        current_site = get_current_site(request)
         for user in self.users:
             uid = user_pk_to_url_str(user)
             token = token_generator.make_token(user)
             reset_url = f"https://taxi-app-two.vercel.app/password/reset/confirm/{uid}/{token}"
-            context = {"user": user, "request": request, "email": email, "reset_url": reset_url}
+            context = {"user": user, "request": request, "email": email,
+                       "reset_url": reset_url, "current_site": current_site}
             get_adapter(request).send_mail(template, email, context)
         return email
 
