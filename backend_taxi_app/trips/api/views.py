@@ -28,7 +28,7 @@ class MyTripsViewSet(viewsets.ModelViewSet):
         if user.type == User.Types.CLIENT:
             return Trip.objects.filter(client=user).order_by('-request_time')[:4]
         if user.type == User.Types.DRIVER:
-            return Trip.objects.filter(~Q(trip_status=Trip.Status.COMPLETE) & Q(driver=user))
+            return Trip.objects.filter(~Q(trip_status=Trip.Status.COMPLETE) & ~Q(trip_status=Trip.Status.CANCELLED) & Q(driver=user))
         return Trip.objects.none()
 
     def perform_create(self, serializer):
