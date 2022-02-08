@@ -85,6 +85,7 @@ class Client(models.Model):
 
     def update_credit(self, credit_amount):
         self.credit += credit_amount
+        self.credit = round(self.credit, 2)
         self.save()
         return self.credit
 
@@ -93,6 +94,7 @@ class Client(models.Model):
         if self.credit >= amount:
             ret = "SUCCESS"
             self.credit -= amount
+            self.credit = round(self.credit, 2)
             self.save()
         return ret
 

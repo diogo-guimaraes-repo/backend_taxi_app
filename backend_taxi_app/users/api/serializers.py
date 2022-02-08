@@ -1,13 +1,25 @@
+from email.policy import default
 from urllib import request
 from django.db import transaction
 from django.conf import settings
 from rest_framework import serializers
+from rest_framework import exceptions, status
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from ..forms import CustomResetPasswordForm
 from dj_rest_auth.serializers import PasswordResetSerializer
 from ..models import Admin, Client, User, Driver
 
 # User = get_user_model()
+
+
+class NoRegisterPermissionException(exceptions.APIException):
+    status_code = status.HTTP_403_FORBIDDEN
+    default_code = "error"
+
+    def __init__(self, detail, status_code=None):
+        self.detail = detail
+        if status_code is not None:
+            self.status_code = status_code
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,10 +41,20 @@ class CustomUserRegisterSerializer(RegisterSerializer):
     @transaction.atomic
     def save(self, request):
         # Set the user's type from the form reponse
+        user_type = self.data.get('type')
+
+        if user_type is not User.Types.CLIENT:
+            if request.user.is_authenticated == False:
+                raise NoRegisterPermissionException({"message": "You don't have permissions for that"})
+            elif request.user.type != User.Types.ADMIN:
+                raise NoRegisterPermissionException({"message": "You are not an admin"})
+            else:
+                pass
+
         user = super().save(request)
         user.first_name = self.data.get('first_name')
         user.last_name = self.data.get('last_name')
-        user.type = self.data.get('type')
+        user.type = user_type
         user.phone_number = self.data.get('phone_number')
         user.save()
         if user.type == User.Types.CLIENT:
